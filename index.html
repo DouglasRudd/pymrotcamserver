@@ -1,0 +1,37 @@
+<html>
+    <head>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+        <script type="text/javascript">
+            function sendRequest(sender){
+                var request=new XMLHttpRequest();
+                request.open("POST", "index.html", true);
+                request.onreadystatechange = receiveResponse(request);
+                request.send(sender.val());
+            }
+
+            function receiveResponse(__request){
+                <!--console.log(__request.responseText);-->
+                    console.log("oh");
+            }
+        </script>
+        <script type="text/javascript">
+            $(document).ready(function(){
+                $("button").click(function(){                    
+                    var sender = $(this);
+                    sendRequest(sender);
+                    });
+                });
+  </script>
+  </head>
+  <body>
+      <!--<p id="bar">This is a !paragraph.</p>-->
+      <button value="up">up</button>
+      <button value="down">down</button>
+      <button value="left">left</button>
+      <button value="right">right</button>
+      <!--<button value="hold">hold</button>-->
+      <!--<p id="bar2">This is a !paragraph.</p>-->
+      <img src="cam.mjpg"/>    
+      <!--<iframe src="//192.168.0.130:8080/stream_simple.html" width="100%" height="300"></iframe>-->
+  </body>
+  </html>
