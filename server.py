@@ -54,11 +54,9 @@ class TestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             """The test example handler."""
     def do_POST(self):
         """Handle a post request ."""
+        # FIXME : put a lock here , revent multi-thread re-entry issue
         length = int(self.headers.getheader('content-length'))
         data_string = self.rfile.read(length)
-        self.wfile.write(data_string) #as response
-        # self.wfile.write("server received") #as response
-        print 'received:{0}'.format(data_string)
         if data_string == "up":
             axis1.move(True)
         if data_string == "down":
@@ -67,8 +65,11 @@ class TestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             axis2.move(True)
         if data_string == "right":
             axis2.move(False)
-        piController.set_servo_pulsewidth(16, axis1.currentPosition)
-        piController.set_servo_pulsewidth(20, axis2.currentPosition)
+        # piController.set_servo_pulsewidth(16, axis1.currentPosition)
+        # piController.set_servo_pulsewidth(20, axis2.currentPosition)
+        response_string = 'received:{0},{1}'.format(axis1,axis2)
+        print response_string
+        self.wfile.write(response_string) #as response
 
 
 class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
