@@ -10,6 +10,7 @@ import cv2
 from PIL import Image
 import time
 
+
 class cvCamera(driveCameraBase.cameraBase):
     def __init__(self, output=None):
         driveCameraBase.cameraBase.__init__(self, output)
