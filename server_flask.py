@@ -1,5 +1,10 @@
+from gevent import monkey
+import gevent.wsgi
+monkey.patch_all()
+
 from flask import Flask, render_template, Response
 from time import time
+
 app = Flask(__name__)
 
 datas = [open('{0}.jpg'.format(i)).read() for i in range(1,6)]
@@ -16,11 +21,12 @@ def gen():
 
 @app.route('/cam.mjpg')
 def feed_stream():
-    print type(gen())
     return Response(gen(),
                     mimetype='multipart/x-mixed-replace; boundary=--jpgboundary')
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True)
+    server = gevent.wsgi.WSGIServer(('',5000),app)
+    server.serve_forever()
+    # app.run('',threaded=True)
 
 
