@@ -1,0 +1,35 @@
+<html>
+    <head>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+        <script type="text/javascript">
+            function sendRequest(sender){
+                var request=new XMLHttpRequest();
+                request.open("POST", "index.html", true);
+                request.onreadystatechange = function(){
+                    if (this.readyState == 4 && this.status == 200){
+                        console.log(this.responseText);
+                        document.getElementById("bar").innerHTML = this.responseText; 
+                    }
+                };
+                request.send(sender.val());
+            }
+
+        </script>
+        <script type="text/javascript">
+            $(document).ready(function(){
+                $("button").click(function(){                    
+                    var sender = $(this);
+                    sendRequest(sender);
+                    });
+                });
+  </script>
+  </head>
+  <body>
+      <p id="bar">default</p>
+      <button value="up">up</button>
+      <button value="down">down</button>
+      <button value="left">left</button>
+      <button value="right">right</button>
+      <img src="cam.mjpg"/>    
+  </body>
+  </html>

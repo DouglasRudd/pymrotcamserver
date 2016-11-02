@@ -15,7 +15,8 @@ class face_detect_handler(object):
             flags=cv2.cv.CV_HAAR_SCALE_IMAGE
         )
         #take first x,y
-        return faces[0][0], faces[0][1]
+        # return faces[0][0], faces[0][1]
+        return faces
 
 class face_detect_handler_tester(unittest.TestCase):
     def setUp(self):
