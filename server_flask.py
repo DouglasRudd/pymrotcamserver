@@ -1,3 +1,14 @@
+
+try:
+    # pi enviroment
+    import pigpio
+    piController = pigpio.pi()
+except ImportError:
+    # non-pi enviroment
+    # FIXME : implemnt some virtual devices
+    pass
+
+
 from gevent import monkey
 import gevent.wsgi
 import gevent
@@ -10,18 +21,10 @@ from PIL import Image
 # import driveCvCamera
 import io
 
-import axis_control
-axisX = axis_control.servo_axis_control()
-axisY = axis_control.servo_axis_control()
+import axis_controll
+axisX = axis_controll.servo_axis_control()
+axisY = axis_controll.servo_axis_control()
 
-try:
-    # pi enviroment
-    import pigpio
-    piController = pigpio.pi()
-except ImportError:
-    # non-pi enviroment
-    # FIXME : implemnt some virtual devices
-    pass
 
 output =io.BytesIO()
 # cam = driveCvCamera.cvCamera(output)
@@ -56,8 +59,8 @@ def video_capturing():
             diff_x = -1*x
             diff_y = -1*y
 
-            axisX.move(mode='REL',diff_x)
-            axisY.move(mode='REL',diff_y)
+            axisX.move(mode='REL',quantity=diff_x)
+            axisY.move(mode='REL',quantity=diff_y)
 
             piController.set_servo_pulsewidth(16, axisX.CurrentPosition)
             piController.set_servo_pulsewidth(20, axisY.CurrentPosition)
