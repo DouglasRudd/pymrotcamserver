@@ -10,6 +10,19 @@ from PIL import Image
 # import driveCvCamera
 import io
 
+import axis_control
+axisX = axis_control.servo_axis_control()
+axisY = axis_control.servo_axis_control()
+
+try:
+    # pi enviroment
+    import pigpio
+    piController = pigpio.pi()
+except ImportError:
+    # non-pi enviroment
+    # FIXME : implemnt some virtual devices
+    pass
+
 output =io.BytesIO()
 # cam = driveCvCamera.cvCamera(output)
 
@@ -34,12 +47,21 @@ def video_capturing():
             flags=cv2.cv.CV_HAAR_SCALE_IMAGE
         )
 
-        for x,y,w,h in objects:
-            cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,0),2)
+        if len(objects) > 1:
+            for x,y,w,h in objects:
+                cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,0),2)
 
-        # cv2.imshow('img', img)
-        # once start to sleep here , then video_capturing would be blocked
-        # otherwise , just_counting would be blocked
+            x,y,w,h = objects[0]
+            #face trakcing
+            diff_x = -1*x
+            diff_y = -1*y
+
+            axisX.move(mode='REL',diff_x)
+            axisY.move(mode='REL',diff_y)
+
+            piController.set_servo_pulsewidth(16, axisX.CurrentPosition)
+            piController.set_servo_pulsewidth(20, axisY.CurrentPosition)
+
         output.seek(0)
         output.truncate(0)
         Image.fromarray(img).save(output,'jpeg')
@@ -49,7 +71,7 @@ def video_capturing():
 
 app = Flask(__name__)
 
-datas = [open('{0}.jpg'.format(i)).read() for i in range(1,6)]
+# datas = [open('{0}.jpg'.format(i)).read() for i in range(1,6)]
 
 def test():
     while True:
