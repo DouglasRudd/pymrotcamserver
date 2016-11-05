@@ -24,6 +24,13 @@ class servo_axis_control:
             else:
                 increment = kwargs['increment']
                 self.__currentPosition += (self.__command_dictionary[command] * increment)
+        elif 'mode' in kwargs:
+            mode = kwargs['mode']
+            quantity = kwargs['quantity']
+            if mode == 'ABS':
+                self.__currentPosition = quantity
+            elif mode == 'REL':
+                self.__currentPosition += quantity
 
         self.__over_travel()
         return self.CurrentPosition
@@ -47,4 +54,17 @@ class servo_axis_control_tester(unittest.TestCase):
     def test_backward(self):
         self.__servo.move('CENTRAL')
         self.assertEqual(self.__servo.move(command='BACKWARD',increment=50),1450)
+
+    def test_abs(self):
+        self.__servo.move('CENTRAL')
+        self.assertEqual(self.__servo.move(mode='ABS',quantity=1300),1300)
+        self.assertEqual(self.__servo.move(mode='ABS',quantity=1900),1900)
+
+    def test_rel(self):
+        self.__servo.move('CENTRAL')
+        self.assertEqual(self.__servo.move(mode='REL',quantity=100),1600)
+        self.assertEqual(self.__servo.move(mode='REL',quantity=-200),1400)
+
+
+
 
