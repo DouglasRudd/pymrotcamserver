@@ -16,17 +16,23 @@ class servo_axis_control:
     def CurrentPosition(self):
         return self.__currentPosition
 
-    def move(self, command, increment=50):
-        # self.__currentPosition += ((int(forward == True) - 0.5) * 2) * increment
-        if command == 'CENTRAL':
-            self.__currentPosition = self.__central
-        else:
-            self.__currentPosition += (self.__command_dictionary[command] * increment)
-            if self.__currentPosition < self.__soft_limit_minus:
-                self.__currentPosition = self.__soft_limit_minus
-            if self.__currentPosition > self.__soft_limit_plus:
-                self.__currentPosition = self.__soft_limit_plus
+    def move(self,*args, **kwargs):
+        if 'command' in kwargs:
+            command = kwargs['command']
+            if command == 'CENTRAL':
+                self.__currentPosition = self.__central
+            else:
+                increment = kwargs['increment']
+                self.__currentPosition += (self.__command_dictionary[command] * increment)
 
+        self.__over_travel()
+        return self.CurrentPosition
+
+    def __over_travel(self):
+        if self.__currentPosition < self.__soft_limit_minus:
+            self.__currentPosition = self.__soft_limit_minus
+        if self.__currentPosition > self.__soft_limit_plus:
+            self.__currentPosition = self.__soft_limit_plus
         return self.CurrentPosition
 
 
@@ -35,10 +41,10 @@ class servo_axis_control_tester(unittest.TestCase):
         self.__servo = servo_axis_control(central=1500)
 
     def test_forward(self):
-        self.__servo.move('CENTRAL')
-        self.assertEqual(self.__servo.move('FORWARD'), 1550)
+        self.__servo.move(command='CENTRAL')
+        self.assertEqual(self.__servo.move(command='FORWARD',increment=50),1550)
 
     def test_backward(self):
         self.__servo.move('CENTRAL')
-        self.assertEqual(self.__servo.move('BACKWARD'), 1450)
+        self.assertEqual(self.__servo.move(command='BACKWARD',increment=50),1450)
 
