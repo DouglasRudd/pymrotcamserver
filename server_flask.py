@@ -2,7 +2,12 @@
 try:
     # pi enviroment
     import pigpio
+    import picamera
+    import picamera.array
     piController = pigpio.pi()
+    piCam = picamera.PiCamera()
+    piCam.resolution = (320,160)
+    piCam.start_preview()
 except ImportError:
     # non-pi enviroment
     # FIXME : implemnt some virtual devices
@@ -27,21 +32,26 @@ axisY = axis_controll.servo_axis_control()
 
 
 output =io.BytesIO()
+output_array = picamera.array.PiRGBArray(piCam)
 # cam = driveCvCamera.cvCamera(output)
 
-capture = cv2.VideoCapture(0)
-capture.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, 320)
-capture.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, 240)
-capture.set(cv2.cv.CV_CAP_PROP_SATURATION, 0.2)
-capture.set(cv2.cv.CV_CAP_PROP_FPS, 10)
+# capture = cv2.VideoCapture(0)
+# capture.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, 320)
+# capture.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, 240)
+# capture.set(cv2.cv.CV_CAP_PROP_SATURATION, 0.2)
+# capture.set(cv2.cv.CV_CAP_PROP_FPS, 10)
 
 face_detect = cv2.CascadeClassifier('./haarcascade_frontalface_default.xml')
 
 def video_capturing():
     while True:
-        rc, img = capture.read()
-        img = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
+        # rc, img = capture.read()
+        # img = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
+        output_array.truncate(0)
+        piCam.capture(output_array,'rgb')
+        img = output_array.array
         img_gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+
         objects = face_detect.detectMultiScale(
             img_gray,
             scaleFactor=1.1,
@@ -55,9 +65,9 @@ def video_capturing():
 
             x,y,w,h = objects[0]
             #face trakcing
-            diff_x = 0.1*(160-x)
-            diff_y = -0.1*(120-y)
-            print (x,y,diff_x,diff_y)
+            diff_x = 0.3*(160-x)
+            diff_y = -0.3*(80-y)
+            print (x,y,diff_x,diff_y,img.shape[0],img.shape[1])
             axisX.move(mode='REL',quantity=diff_x)
             axisY.move(mode='REL',quantity=diff_y)
 
