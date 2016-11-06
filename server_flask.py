@@ -50,14 +50,14 @@ def video_capturing():
             flags=cv2.cv.CV_HAAR_SCALE_IMAGE
         )
 
-        if len(objects) > 1:
+        if len(objects) >= 1:
             for x,y,w,h in objects:
                 cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,0),2)
 
             x,y,w,h = objects[0]
             #face trakcing
-            diff_x = -1*x
-            diff_y = -1*y
+            diff_x = 0.5*(160-x)
+            diff_y = -0.5*(120-y)
 
             axisX.move(mode='REL',quantity=diff_x)
             axisY.move(mode='REL',quantity=diff_y)
@@ -100,6 +100,9 @@ def feed_stream():
                     mimetype='multipart/x-mixed-replace; boundary=--jpgboundary')
 
 if __name__ == '__main__':
+    piController.set_servo_pulsewidth(16, 1500)
+    piController.set_servo_pulsewidth(20, 1500)
+
     th_video = gevent.spawn(video_capturing)
     # th_cam = gevent.spawn(cam.serve_forever)
     # th_app = gevent.spawn(app.run,'')
