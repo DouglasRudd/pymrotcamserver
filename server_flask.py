@@ -12,10 +12,10 @@ except ImportError:
 from gevent import monkey
 import gevent.wsgi
 import gevent
-monkey.patch_all()
+# monkey.patch_all()
 
 from flask import Flask, render_template, Response
-from time import time
+import time
 import cv2
 from PIL import Image
 # import driveCvCamera
@@ -45,8 +45,7 @@ def video_capturing():
         objects = face_detect.detectMultiScale(
             img_gray,
             scaleFactor=1.1,
-            minNeighbors=5,
-            minSize=(30, 30),
+            minNeighbors=1,
             flags=cv2.cv.CV_HAAR_SCALE_IMAGE
         )
 
@@ -56,20 +55,20 @@ def video_capturing():
 
             x,y,w,h = objects[0]
             #face trakcing
-            diff_x = 0.5*(160-x)
-            diff_y = -0.5*(120-y)
-
+            diff_x = 0.1*(160-x)
+            diff_y = -0.1*(120-y)
+            print (x,y,diff_x,diff_y)
             axisX.move(mode='REL',quantity=diff_x)
             axisY.move(mode='REL',quantity=diff_y)
 
             piController.set_servo_pulsewidth(16, axisX.CurrentPosition)
             piController.set_servo_pulsewidth(20, axisY.CurrentPosition)
 
-        output.seek(0)
-        output.truncate(0)
-        Image.fromarray(img).save(output,'jpeg')
-        print 'video_capturing'
-        gevent.sleep(1)
+        # output.seek(0)
+        # output.truncate(0)
+        # Image.fromarray(img).save(output,'jpeg')
+        # gevent.sleep(0.2)
+        time.sleep(0.2)
 
 
 app = Flask(__name__)
@@ -103,14 +102,16 @@ if __name__ == '__main__':
     piController.set_servo_pulsewidth(16, 1500)
     piController.set_servo_pulsewidth(20, 1500)
 
-    th_video = gevent.spawn(video_capturing)
+    video_capturing()
+    # th_video = gevent.spawn(video_capturing)
     # th_cam = gevent.spawn(cam.serve_forever)
     # th_app = gevent.spawn(app.run,'')
     # th_test = gevent.spawn(test)
     print 'spawn'
+    # gevent.joinall([th_video])
     # gevent.joinall([th_app,th_cam])
-    server = gevent.pywsgi.WSGIServer(('',5000),app)
-    server.serve_forever()
+    # server = gevent.pywsgi.WSGIServer(('',5000),app)
+    # server.serve_forever()
     # app.run('',threaded=True)
 
 
