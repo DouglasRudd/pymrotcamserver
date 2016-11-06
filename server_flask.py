@@ -1,4 +1,9 @@
 
+WIDTH = 320
+HEIGHT=160
+
+CENTER_X = WIDTH/2
+CENTER_Y = HEIGHT/2
 try:
     # pi enviroment
     import pigpio
@@ -6,7 +11,7 @@ try:
     import picamera.array
     piController = pigpio.pi()
     piCam = picamera.PiCamera()
-    piCam.resolution = (320,160)
+    piCam.resolution = (WIDTH,HEIGHT)
     piCam.start_preview()
 except ImportError:
     # non-pi enviroment
@@ -56,18 +61,27 @@ def video_capturing():
             img_gray,
             scaleFactor=1.1,
             minNeighbors=1,
-            flags=cv2.cv.CV_HAAR_SCALE_IMAGE
         )
 
         if len(objects) >= 1:
-            for x,y,w,h in objects:
-                cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,0),2)
+            # for x,y,w,h in objects:
+                # cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,0),2)
 
             x,y,w,h = objects[0]
+
+            __center_x = x+w/2
+            __center_y = y+h/2
             #face trakcing
-            diff_x = 0.3*(160-x)
-            diff_y = -0.3*(80-y)
-            print (x,y,diff_x,diff_y,img.shape[0],img.shape[1])
+            diff_x = 0.3*(CENTER_X-__center_x)
+            diff_y = -0.3*(CENTER_Y-__center_y)
+            print (__center_x,
+                   __center_y,
+                   diff_x,
+                   diff_y,
+                   img.shape[0],
+                   img.shape[1],
+                   axisX.CurrentPosition,
+                   axisY.CurrentPosition)
             axisX.move(mode='REL',quantity=diff_x)
             axisY.move(mode='REL',quantity=diff_y)
 
