@@ -51,24 +51,26 @@ def video_capturing():
     while True:
         # rc, img = capture.read()
         # img = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
-        time.clock()
+        start=time.clock()
         output_array.truncate(0)
         piCam.capture(output_array,'rgb')
         img = output_array.array
         img_gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-        print 'capture/convert:{0}'.format(time.clock())
+        print 'capture/convert:{0}'.format(time.clock()-start)
 
+        start=time.clock()
         objects = face_detect.detectMultiScale(
             img_gray,
-            scaleFactor=1.1,
+            scaleFactor=1.6,
             minNeighbors=1,
         )
-        print 'face_detect:{0}'.format(time.clock())
+        print 'face_detect:{0}'.format(time.clock()-start)
 
         if len(objects) >= 1:
+            start=time.clock()
             for x, y, w, h in objects:
                 cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 2)
-            print 'rectangle:{0}'.format(time.clock())
+            print 'rectangle:{0}'.format(time.clock()-start)
 
             x, y, w, h = objects[0]
 
@@ -88,14 +90,16 @@ def video_capturing():
             axisX.move(mode='REL', quantity=diff_x)
             axisY.move(mode='REL', quantity=diff_y)
 
+            start=time.clock()
             piController.set_servo_pulsewidth(16, axisX.CurrentPosition)
             piController.set_servo_pulsewidth(20, axisY.CurrentPosition)
-            print 'servo:{0}'.format(time.clock())
+            print 'servo:{0}'.format(time.clock()-start)
 
+        start=time.clock()
         output.seek(0)
         output.truncate(0)
         Image.fromarray(img).save(output,'jpeg')
-        print 'jpeg:{0}'.format(time.clock())
+        print 'jpeg:{0}'.format(time.clock()-start)
         # gevent.sleep(0.05)
         # time.sleep(0.2)
 
@@ -131,11 +135,11 @@ if __name__ == '__main__':
     piController.set_servo_pulsewidth(16, 1500)
     piController.set_servo_pulsewidth(20, 1500)
 
-    video_capturing()
+    # video_capturing()
 
     # corroutine flask server and camera/fact_detect
-    # th_video = gevent.spawn(video_capturing)
-    # server = gevent.pywsgi.WSGIServer(('', 8060), app)
-    # server.serve_forever()
+    th_video = gevent.spawn(video_capturing)
+    server = gevent.pywsgi.WSGIServer(('', 8060), app)
+    server.serve_forever()
 
 
