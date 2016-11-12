@@ -12,7 +12,7 @@ try:
     piController = pigpio.pi()
     piCam = picamera.PiCamera()
     piCam.resolution = (WIDTH, HEIGHT)
-    piCam.start_preview()
+    # piCam.start_preview()
 except ImportError:
     # non-pi enviroment
     # FIXME : implemnt some virtual devices
@@ -87,10 +87,10 @@ def video_capturing():
             piController.set_servo_pulsewidth(16, axisX.CurrentPosition)
             piController.set_servo_pulsewidth(20, axisY.CurrentPosition)
 
-        # output.seek(0)
-        # output.truncate(0)
-        # Image.fromarray(img).save(output,'jpeg')
-        gevent.sleep(0.2)
+        output.seek(0)
+        output.truncate(0)
+        Image.fromarray(img).save(output,'jpeg')
+        gevent.sleep(0.05)
         # time.sleep(0.2)
 
 
@@ -112,7 +112,7 @@ def gen():
     #this object returned a generator
     while True:
         # __data = datas[int(time())%5 ]
-        __data = output_array.getvalue()
+        __data = output.getvalue()
         yield (b'--jpgboundary'
                b'Content-type: image/jpeg\r\n\r\n' + __data + b'\r\n')
 
