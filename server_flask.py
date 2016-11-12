@@ -72,7 +72,7 @@ def video_capturing():
             __center_x = x+w/2
             __center_y = y+h/2
             #face trakcing
-            diff_x = 0.3*(CENTER_X-__center_x)
+            diff_x = 1.2*(CENTER_X-__center_x)
             diff_y = -0.3*(CENTER_Y-__center_y)
             print (__center_x,
                    __center_y,
