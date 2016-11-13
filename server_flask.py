@@ -96,7 +96,7 @@ def video_capturing():
         output.truncate(0)
         Image.fromarray(img).save(output,'jpeg')
         print 'jpeg:{0}'.format(time.clock())
-        gevent.sleep(0.05)
+        # gevent.sleep(0.05)
         # time.sleep(0.2)
 
 
@@ -131,12 +131,11 @@ if __name__ == '__main__':
     piController.set_servo_pulsewidth(16, 1500)
     piController.set_servo_pulsewidth(20, 1500)
 
-    # video_capturing()
-    th_video = gevent.spawn(video_capturing)
-    # th_app = gevent.spawn(app.run,'')
-    print 'spawn'
-    # gevent.joinall([th_app,th_video])
-    server = gevent.pywsgi.WSGIServer(('', 8060), app)
-    server.serve_forever()
+    video_capturing()
+
+    # corroutine flask server and camera/fact_detect
+    # th_video = gevent.spawn(video_capturing)
+    # server = gevent.pywsgi.WSGIServer(('', 8060), app)
+    # server.serve_forever()
 
 
