@@ -51,20 +51,24 @@ def video_capturing():
     while True:
         # rc, img = capture.read()
         # img = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
+        time.clock()
         output_array.truncate(0)
         piCam.capture(output_array,'rgb')
         img = output_array.array
         img_gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+        print 'capture/convert:{0}'.format(time.clock())
 
         objects = face_detect.detectMultiScale(
             img_gray,
             scaleFactor=1.1,
             minNeighbors=1,
         )
+        print 'face_detect:{0}'.format(time.clock())
 
         if len(objects) >= 1:
             for x, y, w, h in objects:
                 cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 2)
+            print 'rectangle:{0}'.format(time.clock())
 
             x, y, w, h = objects[0]
 
@@ -86,10 +90,12 @@ def video_capturing():
 
             piController.set_servo_pulsewidth(16, axisX.CurrentPosition)
             piController.set_servo_pulsewidth(20, axisY.CurrentPosition)
+            print 'servo:{0}'.format(time.clock())
 
         output.seek(0)
         output.truncate(0)
         Image.fromarray(img).save(output,'jpeg')
+        print 'jpeg:{0}'.format(time.clock())
         gevent.sleep(0.05)
         # time.sleep(0.2)
 
