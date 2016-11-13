@@ -1,6 +1,6 @@
 
 WIDTH = 320
-HEIGHT=160
+HEIGHT = 160
 
 CENTER_X = WIDTH/2
 CENTER_Y = HEIGHT/2
@@ -11,7 +11,7 @@ try:
     import picamera.array
     piController = pigpio.pi()
     piCam = picamera.PiCamera()
-    piCam.resolution = (WIDTH,HEIGHT)
+    piCam.resolution = (WIDTH, HEIGHT)
     piCam.start_preview()
 except ImportError:
     # non-pi enviroment
@@ -22,13 +22,12 @@ except ImportError:
 from gevent import monkey
 import gevent.wsgi
 import gevent
-# monkey.patch_all()
+monkey.patch_all()
 
 from flask import Flask, render_template, Response
 import time
 import cv2
 from PIL import Image
-# import driveCvCamera
 import io
 
 import axis_controll
@@ -64,10 +63,10 @@ def video_capturing():
         )
 
         if len(objects) >= 1:
-            # for x,y,w,h in objects:
-                # cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,0),2)
+            for x, y, w, h in objects:
+                cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 2)
 
-            x,y,w,h = objects[0]
+            x, y, w, h = objects[0]
 
             __center_x = x+w/2
             __center_y = y+h/2
@@ -82,8 +81,8 @@ def video_capturing():
                    img.shape[1],
                    axisX.CurrentPosition,
                    axisY.CurrentPosition)
-            axisX.move(mode='REL',quantity=diff_x)
-            axisY.move(mode='REL',quantity=diff_y)
+            axisX.move(mode='REL', quantity=diff_x)
+            axisY.move(mode='REL', quantity=diff_y)
 
             piController.set_servo_pulsewidth(16, axisX.CurrentPosition)
             piController.set_servo_pulsewidth(20, axisY.CurrentPosition)
@@ -91,8 +90,8 @@ def video_capturing():
         # output.seek(0)
         # output.truncate(0)
         # Image.fromarray(img).save(output,'jpeg')
-        # gevent.sleep(0.2)
-        time.sleep(0.2)
+        gevent.sleep(0.2)
+        # time.sleep(0.2)
 
 
 app = Flask(__name__)
@@ -113,7 +112,7 @@ def gen():
     #this object returned a generator
     while True:
         # __data = datas[int(time())%5 ]
-        __data = output.getvalue()
+        __data = output_array.getvalue()
         yield (b'--jpgboundary'
                b'Content-type: image/jpeg\r\n\r\n' + __data + b'\r\n')
 
@@ -126,16 +125,12 @@ if __name__ == '__main__':
     piController.set_servo_pulsewidth(16, 1500)
     piController.set_servo_pulsewidth(20, 1500)
 
-    video_capturing()
-    # th_video = gevent.spawn(video_capturing)
-    # th_cam = gevent.spawn(cam.serve_forever)
+    # video_capturing()
+    th_video = gevent.spawn(video_capturing)
     # th_app = gevent.spawn(app.run,'')
-    # th_test = gevent.spawn(test)
     print 'spawn'
-    # gevent.joinall([th_video])
-    # gevent.joinall([th_app,th_cam])
-    # server = gevent.pywsgi.WSGIServer(('',5000),app)
-    # server.serve_forever()
-    # app.run('',threaded=True)
+    # gevent.joinall([th_app,th_video])
+    server = gevent.pywsgi.WSGIServer(('', 8060), app)
+    server.serve_forever()
 
 

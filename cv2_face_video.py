@@ -13,7 +13,8 @@ capture.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, 240)
 capture.set(cv2.cv.CV_CAP_PROP_SATURATION, 0.2)
 capture.set(cv2.cv.CV_CAP_PROP_FPS, 10)
 
-face_detect = cv2.CascadeClassifier('./haarcascade_frontalface_default.xml')
+# face_detect = cv2.CascadeClassifier('./haarcascade_frontalface_default.xml')
+face_detect = cv2.CascadeClassifier('./lbpcascade_frontalface.xml')
 
 def video_capturing():
     while True:
@@ -29,13 +30,16 @@ def video_capturing():
         )
 
         for x,y,w,h in objects:
-            cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,0),2)
+            # cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,0),2)
+            cv2.circle(img,(x+w/2,y+h/2),w,(0,255,0),2)
+        # cv2.rectangle(img,(10,10),(15,15),(0,255,0),2)
+        # cv2.rectangle(img,(200,200),(210,210),(255,0,0),2)
 
-        # cv2.imshow('img', img)
+        cv2.imshow('img', img)
         # once start to sleep here , then video_capturing would be blocked
         # otherwise , just_counting would be blocked
-        print 'video_capturing'
-        gevent.sleep(1)
+        # print 'video_capturing'
+        # gevent.sleep(1)
 
 
 def just_counting(__counter):
@@ -47,11 +51,11 @@ def just_counting(__counter):
 if __name__ == '__main__':
     counter1 = 0
     counter2 = 0
-    th0 = gevent.spawn(just_counting, counter1)
-    th2 = gevent.spawn(just_counting, counter2)
-    th1 = gevent.spawn(video_capturing)
-    gevent.joinall([th2, th0, th1])
-    # video_capturing()
+    # th0 = gevent.spawn(just_counting, counter1)
+    # th2 = gevent.spawn(just_counting, counter2)
+    # th1 = gevent.spawn(video_capturing)
+    # gevent.joinall([th2, th0, th1])
+    video_capturing()
     # while True:
         # rc,img = capture.read()
         # img = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
