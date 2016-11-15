@@ -4,6 +4,10 @@ HEIGHT = 160
 
 CENTER_X = WIDTH/2
 CENTER_Y = HEIGHT/2
+
+CHANNEL_X = 16
+CHANNEL_Y = 20
+
 try:
     # pi enviroment
     import pigpio
@@ -87,31 +91,28 @@ def video_capturing():
                    img.shape[1],
                    axisX.CurrentPosition,
                    axisY.CurrentPosition)
+            #output compensation
             axisX.move(mode='REL', quantity=diff_x)
             axisY.move(mode='REL', quantity=diff_y)
 
-            start=time.clock()
-            piController.set_servo_pulsewidth(16, axisX.CurrentPosition)
-            piController.set_servo_pulsewidth(20, axisY.CurrentPosition)
-            print 'servo:{0}'.format(time.clock()-start)
-
+        #output mjpeg
         start=time.clock()
         output.seek(0)
         output.truncate(0)
         Image.fromarray(img).save(output,'jpeg')
         print 'jpeg:{0}'.format(time.clock()-start)
-        # gevent.sleep(0.05)
-        # time.sleep(0.2)
 
+def servo_output():
+    while True:
+        start=time.clock()
+        piController.set_servo_pulsewidth(CHANNEL_X, axisX.CurrentPosition)
+        piController.set_servo_pulsewidth(CHANNEL_Y, axisY.CurrentPosition)
+        print 'servo:{0}'.format(time.clock()-start)
+        gevent.sleep(0.02)
 
 app = Flask(__name__)
 
 # datas = [open('{0}.jpg'.format(i)).read() for i in range(1,6)]
-
-def test():
-    while True:
-        print '1'
-        gevent.sleep(1)
 
 @app.route('/')
 def index():
@@ -132,12 +133,13 @@ def feed_stream():
                     mimetype='multipart/x-mixed-replace; boundary=--jpgboundary')
 
 if __name__ == '__main__':
-    piController.set_servo_pulsewidth(16, 1500)
-    piController.set_servo_pulsewidth(20, 1500)
+    # piController.set_servo_pulsewidth(16, 1500)
+    # piController.set_servo_pulsewidth(20, 1500)
 
     # video_capturing()
 
     # corroutine flask server and camera/fact_detect
+    th_servo = gevent.spawn(servo_output)
     th_video = gevent.spawn(video_capturing)
     server = gevent.pywsgi.WSGIServer(('', 8060), app)
     server.serve_forever()
