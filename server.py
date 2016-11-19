@@ -83,4 +83,5 @@ def start_server():
 
 if __name__ == "__main__":
     camera.serve_forever()
+    print 'cam'
     start_server()

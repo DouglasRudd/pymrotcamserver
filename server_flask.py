@@ -28,7 +28,7 @@ import gevent.wsgi
 import gevent
 monkey.patch_all()
 
-from flask import Flask, render_template, Response
+from flask import Flask, render_template, Response, request
 import time
 import cv2
 from PIL import Image
@@ -37,7 +37,7 @@ import io
 import axis_controll
 axisX = axis_controll.servo_axis_control()
 axisY = axis_controll.servo_axis_control()
-
+axis_collection = [axisX,axisY]
 
 output =io.BytesIO()
 output_array = picamera.array.PiRGBArray(piCam)
@@ -114,9 +114,14 @@ app = Flask(__name__)
 
 # datas = [open('{0}.jpg'.format(i)).read() for i in range(1,6)]
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def index():
-    print 'index'
+    if request.method == 'POST':
+        #drive servo manually
+        axis_collection[request.form['axis']].move(request.form['command'],
+                                                   request.form['quantity'])
+        return 'done'
+
     return render_template('index.html')
 
 def gen():
