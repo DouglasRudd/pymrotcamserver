@@ -8,6 +8,8 @@ CENTER_Y = HEIGHT/2
 CHANNEL_X = 16
 CHANNEL_Y = 20
 
+ENV ='non-pi'
+
 try:
     # pi enviroment
     import pigpio
@@ -16,11 +18,13 @@ try:
     piController = pigpio.pi()
     piCam = picamera.PiCamera()
     piCam.resolution = (WIDTH, HEIGHT)
+    output_array = picamera.array.PiRGBArray(piCam)
     # piCam.start_preview()
+    ENV = 'pi'
 except ImportError:
     # non-pi enviroment
     # FIXME : implemnt some virtual devices
-    pass
+    ENV = 'non-pi'
 
 
 from gevent import monkey
@@ -40,25 +44,28 @@ axisY = axis_controll.servo_axis_control()
 axis_collection = [axisX,axisY]
 
 output =io.BytesIO()
-output_array = picamera.array.PiRGBArray(piCam)
-# cam = driveCvCamera.cvCamera(output)
 
-# capture = cv2.VideoCapture(0)
-# capture.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, 320)
-# capture.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, 240)
-# capture.set(cv2.cv.CV_CAP_PROP_SATURATION, 0.2)
-# capture.set(cv2.cv.CV_CAP_PROP_FPS, 10)
+if ENV == 'non-pi':
+    capture = cv2.VideoCapture(0)
+    capture.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, 320)
+    capture.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, 240)
+    capture.set(cv2.cv.CV_CAP_PROP_SATURATION, 0.2)
+    capture.set(cv2.cv.CV_CAP_PROP_FPS, 10)
 
 face_detect = cv2.CascadeClassifier('./haarcascade_frontalface_default.xml')
 
 def video_capturing():
     while True:
-        # rc, img = capture.read()
-        # img = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
         start=time.clock()
-        output_array.truncate(0)
-        piCam.capture(output_array,'rgb')
-        img = output_array.array
+
+        if ENV == 'non-pi':
+            rc, img = capture.read()
+            img = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
+        else :
+            output_array.truncate(0)
+            piCam.capture(output_array,'rgb')
+            img = output_array.array
+
         img_gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
         print 'capture/convert:{0}'.format(time.clock()-start)
 
@@ -101,6 +108,7 @@ def video_capturing():
         output.truncate(0)
         Image.fromarray(img).save(output,'jpeg')
         print 'jpeg:{0}'.format(time.clock()-start)
+        gevent.sleep(0.02)
 
 def servo_output():
     while True:
@@ -112,14 +120,10 @@ def servo_output():
 
 app = Flask(__name__)
 
-# datas = [open('{0}.jpg'.format(i)).read() for i in range(1,6)]
-
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
         #drive servo manually
-        axis_collection[request.form['axis']].move(request.form['command'],
-                                                   request.form['quantity'])
         return 'done'
 
     return render_template('index.html')
@@ -127,7 +131,6 @@ def index():
 def gen():
     #this object returned a generator
     while True:
-        # __data = datas[int(time())%5 ]
         __data = output.getvalue()
         yield (b'--jpgboundary'
                b'Content-type: image/jpeg\r\n\r\n' + __data + b'\r\n')
@@ -144,7 +147,10 @@ if __name__ == '__main__':
     # video_capturing()
 
     # corroutine flask server and camera/fact_detect
-    th_servo = gevent.spawn(servo_output)
+    if ENV == 'pi':
+        th_servo = gevent.spawn(servo_output)
+    else:
+        pass
     th_video = gevent.spawn(video_capturing)
     server = gevent.pywsgi.WSGIServer(('', 8060), app)
     server.serve_forever()

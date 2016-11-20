@@ -8,7 +8,8 @@
                 request.onreadystatechange = function(){
                     if (this.readyState == 4 && this.status == 200){
                         console.log(this.responseText);
-                        document.getElementById("bar").innerHTML = this.responseText; 
+                        // document.getElementById("bar").innerHTML = this.responseText;
+                        $('#bar').html(this.responseText);
                     }
                 };
                 request.send(sender.val());
