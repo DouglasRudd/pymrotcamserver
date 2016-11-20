@@ -5,11 +5,13 @@
   </head>
   <body>
       <p id="bar">{{ url_for('static',filename='file.js') }}</p>
-      <button data-dir="up">up</button>
-      <button data-dir="down">down</button>
-      <button data-dir="left">left</button>
-      <button data-dir="right">right</button>
-      <input type="text" id="angle">angle</input>
+      <p id="X"></p>
+      <p id="Y"></p>
+      <button data-dir=1 data-axis="Y">up</button>
+      <button data-dir=-1 data-axis="Y">down</button>
+      <button data-dir=1 data-axis="X">left</button>
+      <button data-dir=-1 data-axis="X">right</button>
+      <input type="text" id="angle" value=50>angle in degree</input>
       <input type="CHECKBOX"></input>
       <input type="RADIO"></input>
       <input type="RANGE"></input>

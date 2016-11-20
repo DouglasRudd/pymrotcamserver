@@ -32,7 +32,7 @@ import gevent.wsgi
 import gevent
 monkey.patch_all()
 
-from flask import Flask, render_template, Response, request
+from flask import Flask, render_template, Response, request, jsonify
 import time
 import cv2
 from PIL import Image
@@ -43,6 +43,9 @@ import axis_controll
 axisX = axis_controll.servo_axis_control()
 axisY = axis_controll.servo_axis_control()
 axis_collection = [axisX,axisY]
+axis_dictionary = {}
+axis_dictionary['X'] = axisX
+axis_dictionary['Y'] = axisY
 
 output =io.BytesIO()
 
@@ -100,8 +103,8 @@ def video_capturing():
                    axisX.CurrentPosition,
                    axisY.CurrentPosition)
             #output compensation
-            axisX.move(mode='REL', quantity=diff_x)
-            axisY.move(mode='REL', quantity=diff_y)
+            # axisX.move(mode='REL', quantity=diff_x)
+            # axisY.move(mode='REL', quantity=diff_y)
 
         #output mjpeg
         start=time.clock()
@@ -127,8 +130,17 @@ def index():
 
 @app.route('/control',methods=['POST'])
 def control():
-    print request.form
+    # print request.form
+    __axis = request.form['axis']
+    __mode = request.form['coord']
+    __quantity = float(request.form['direction']) * float(request.form['angle'])
+    axis_dictionary[__axis].move(mode=__mode,quantity=__quantity)
     return 'done'
+
+@app.route('/position')
+def position():
+    return jsonify(X=axisX.CurrentPosition,
+                   Y=axisY.CurrentPosition)
 
 def gen():
     #this object returned a generator
