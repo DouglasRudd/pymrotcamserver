@@ -32,7 +32,7 @@ import gevent.wsgi
 import gevent
 monkey.patch_all()
 
-from flask import Flask, render_template, Response, request, jsonify
+from flask import Flask, render_template, Response, request, jsonify, g
 import time
 import cv2
 from PIL import Image
@@ -46,9 +46,9 @@ axis_collection = [axisX,axisY]
 axis_dictionary = {}
 axis_dictionary['X'] = axisX
 axis_dictionary['Y'] = axisY
+axis_dictionary['mode'] = "Manual"
 
 output =io.BytesIO()
-current_mode = "MANUAL"
 
 if ENV == 'non-pi':
     capture = cv2.VideoCapture(0)
@@ -104,7 +104,7 @@ def video_capturing():
                    axisX.CurrentPosition,
                    axisY.CurrentPosition)
             #output compensation
-            if current_mode == "AUTO":
+            if axis_dictionary['mode'] == 'Auto' :
                 axisX.move(mode='REL', quantity=diff_x)
                 axisY.move(mode='REL', quantity=diff_y)
 
@@ -122,7 +122,7 @@ def servo_output():
         piController.set_servo_pulsewidth(CHANNEL_X, axisX.CurrentPosition)
         piController.set_servo_pulsewidth(CHANNEL_Y, axisY.CurrentPosition)
         logging.info('servo:{0}'.format(time.clock()-start))
-        gevent.sleep(0.02)
+        gevent.sleep(0.1)
 
 app = Flask(__name__)
 
@@ -137,8 +137,8 @@ def control():
     __mode = request.form['coord']
     __quantity = float(request.form['direction']) * float(request.form['angle'])
     axis_dictionary[__axis].move(mode=__mode,quantity=__quantity)
-    current_mode = request.form['mode']
-    logging.debug(__axis,__mode,__quantity,current_mode)
+    axis_dictionary['mode'] = str(request.form['mode'])
+    # logging.debug(__axis,__mode,__quantity,g.mode)
     return 'done'
 
 @app.route('/position')
