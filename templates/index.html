@@ -4,17 +4,17 @@
         <script type="text/javascript" src={{ url_for('static',filename='scripts.js')}}></script>
   </head>
   <body>
-      <p id="bar">{{ url_for('static',filename='file.js') }}</p>
       <p id="X"></p>
       <p id="Y"></p>
+      <img src="cam.mjpg"/>    
+      <br />
       <button data-dir=1 data-axis="Y">up</button>
       <button data-dir=-1 data-axis="Y">down</button>
       <button data-dir=1 data-axis="X">left</button>
       <button data-dir=-1 data-axis="X">right</button>
       <input type="text" id="angle" value=50>angle in degree</input>
-      <input type="CHECKBOX"></input>
-      <input type="RADIO"></input>
-      <input type="RANGE"></input>
-      <img src="cam.mjpg"/>    
+      <br />
+      <input type=RADIO name="mode" value="Auto" onclick="mode_change(this.value);" >Auto(Face Tracking)</input>
+      <input type=RADIO name="mode" checked=True value="Manual" onclick="mode_change(this.value);" >Manual(Jog)</input>
   </body>
   </html>

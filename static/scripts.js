@@ -2,7 +2,7 @@ var __coord = 'REL'
 var __axis = 'X' //X,Y
 var __direction = 1 //1: forward , -1: backward
 var __angle = 5 //in degree
-
+var __mode = "AUTO"
 
 function renew_position(data){
     $('#X').html(data.X);
@@ -21,8 +21,14 @@ function manual_axis_control(){
         coord : __coord,
         axis : __axis,
         direction : __direction,
-        angle : __angle
+        angle : __angle,
+        mode : __mode 
     });
+}
+
+function mode_change(value){
+    __mode = value;
+    manual_axis_control();
 }
 
 // binding job mode buttons
@@ -38,4 +44,5 @@ $(document).ready(function(){
 
     var __timer = setInterval(get_renew_position,1000);
 
+    //document.getElementsByName("mode").onclick="mode_change";
 });

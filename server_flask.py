@@ -48,6 +48,7 @@ axis_dictionary['X'] = axisX
 axis_dictionary['Y'] = axisY
 
 output =io.BytesIO()
+current_mode = "MANUAL"
 
 if ENV == 'non-pi':
     capture = cv2.VideoCapture(0)
@@ -103,8 +104,9 @@ def video_capturing():
                    axisX.CurrentPosition,
                    axisY.CurrentPosition)
             #output compensation
-            # axisX.move(mode='REL', quantity=diff_x)
-            # axisY.move(mode='REL', quantity=diff_y)
+            if current_mode == "AUTO":
+                axisX.move(mode='REL', quantity=diff_x)
+                axisY.move(mode='REL', quantity=diff_y)
 
         #output mjpeg
         start=time.clock()
@@ -135,6 +137,8 @@ def control():
     __mode = request.form['coord']
     __quantity = float(request.form['direction']) * float(request.form['angle'])
     axis_dictionary[__axis].move(mode=__mode,quantity=__quantity)
+    current_mode = request.form['mode']
+    logging.debug(__axis,__mode,__quantity,current_mode)
     return 'done'
 
 @app.route('/position')
