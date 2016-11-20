@@ -3,6 +3,8 @@ Simple 2-axis motorized rotating camera MJPG server on raspberry pi , motion par
 Camera capture function also can be tested on non-pi enviroment by the helps of cv2 (python wrapper of OpenCV).<br>
 Going to have some fun features further , such as motorized face-tracking , click-and-set image center , or do some further complex image process.<br>
 
+[linkname](https://www.youtube.com/watch?v=DEtvsyUUeuA&t=8s)
+
 ***
 
 # Depedencies (raspberry/rasbian)
