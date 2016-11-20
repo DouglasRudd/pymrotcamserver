@@ -141,11 +141,7 @@ def feed_stream():
                     mimetype='multipart/x-mixed-replace; boundary=--jpgboundary')
 
 if __name__ == '__main__':
-    # piController.set_servo_pulsewidth(16, 1500)
-    # piController.set_servo_pulsewidth(20, 1500)
-
     # video_capturing()
-
     # corroutine flask server and camera/fact_detect
     if ENV == 'pi':
         th_servo = gevent.spawn(servo_output)
