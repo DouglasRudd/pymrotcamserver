@@ -37,6 +37,7 @@ import time
 import cv2
 from PIL import Image
 import io
+import logging
 
 import axis_controll
 axisX = axis_controll.servo_axis_control()
@@ -67,7 +68,7 @@ def video_capturing():
             img = output_array.array
 
         img_gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-        print 'capture/convert:{0}'.format(time.clock()-start)
+        logging.info('capture/convert:{0}'.format(time.clock()-start))
 
         start=time.clock()
         objects = face_detect.detectMultiScale(
@@ -75,13 +76,13 @@ def video_capturing():
             scaleFactor=1.6,
             minNeighbors=1,
         )
-        print 'face_detect:{0}'.format(time.clock()-start)
+        logging.info('face_detect:{0}'.format(time.clock()-start))
 
         if len(objects) >= 1:
             start=time.clock()
             for x, y, w, h in objects:
                 cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 2)
-            print 'rectangle:{0}'.format(time.clock()-start)
+            logging.info('rectangle:{0}'.format(time.clock()-start))
 
             x, y, w, h = objects[0]
 
@@ -90,7 +91,7 @@ def video_capturing():
             #face trakcing
             diff_x = 1.2*(CENTER_X-__center_x)
             diff_y = -0.3*(CENTER_Y-__center_y)
-            print (__center_x,
+            logging.info(__center_x,
                    __center_y,
                    diff_x,
                    diff_y,
@@ -107,7 +108,7 @@ def video_capturing():
         output.seek(0)
         output.truncate(0)
         Image.fromarray(img).save(output,'jpeg')
-        print 'jpeg:{0}'.format(time.clock()-start)
+        logging.info('jpeg:{0}'.format(time.clock()-start))
         gevent.sleep(0.02)
 
 def servo_output():
@@ -115,18 +116,19 @@ def servo_output():
         start=time.clock()
         piController.set_servo_pulsewidth(CHANNEL_X, axisX.CurrentPosition)
         piController.set_servo_pulsewidth(CHANNEL_Y, axisY.CurrentPosition)
-        print 'servo:{0}'.format(time.clock()-start)
+        logging.info('servo:{0}'.format(time.clock()-start))
         gevent.sleep(0.02)
 
 app = Flask(__name__)
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/')
 def index():
-    if request.method == 'POST':
-        #drive servo manually
-        return 'done'
-
     return render_template('index.html')
+
+@app.route('/control',methods=['POST'])
+def control():
+    print request.form
+    return 'done'
 
 def gen():
     #this object returned a generator
